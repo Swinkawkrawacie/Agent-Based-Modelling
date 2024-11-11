@@ -66,7 +66,7 @@ class SchellingModel:
                             
     def move(self, x: int, y: int, old_id: int):
         state = self.env.copy()[x, y]
-        new_ind = int(self.empty_pos.shape[0] * random.random()) #ask if that's okay
+        new_ind = int(self.empty_pos.shape[0] * random.random())
         new_x, new_y = self.empty_pos[new_ind]
         self.env[new_x, new_y], self.env[x, y] = state, 0
         self.empty_pos[new_ind] = (x, y)
@@ -88,12 +88,12 @@ class SchellingModel:
         return mat[~(mat > (self.L + self.padding - 1)).any(1),:]
     
     def simulate(self, n=1):
-        base_env = self.env.copy()
+        self.base_env = self.env.copy()
         self.sni = 0
         self.t = 0
         M = n
         while n>0:
-            self.env = base_env.copy()
+            self.gen_env()
             self.empty_pos = self.cut_borders(np.transpose(np.where(self.env == 0)))
             self.pos = self.cut_borders(np.transpose(np.nonzero(self.env)))
             ts = 0
@@ -112,20 +112,13 @@ class SchellingModelWithSave(SchellingModel):
     
     def __init__(self,  sizes: tuple, th: tuple, nbh: tuple, L=100):
         super().__init__(sizes, th, nbh, L)
-        self.history = [self.env[1:-1].copy()]
+        self.history = []
                             
     def one_tick(self):
         super().one_tick()
-        self.history.append(self.env[1:-1].copy())
-# import time
-# t1 = time.time()
-# temp = SchellingModel((250, 250), (0.8, 0.8), (1, 1))
-# temp.simulate(100)
-# t2 = time.time()
-# print(t2-t1)
-# print(temp.t)
-# print(temp.sni)
-# import seaborn as sns 
-# from matplotlib import pyplot as plt
-# sns.heatmap(temp.history[-1])
-# plt.show()
+        self.history.append(self.env[self.padding:-(self.padding)].copy())
+    
+    def simulate(self, n=1):
+        super().simulate(n)
+        self.history = [self.base_env[self.padding:-(self.padding)].copy()] + self.history
+
