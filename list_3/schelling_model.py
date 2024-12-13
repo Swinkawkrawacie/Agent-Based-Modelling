@@ -69,7 +69,7 @@ class SchellingModel:
         new_ind = int(self.empty_pos.shape[0] * random.random())
         new_x, new_y = self.empty_pos[new_ind]
         self.env[new_x, new_y], self.env[x, y] = state, 0
-        self.empty_pos[new_ind] = (x, y)
+        self.empty_pos[new_ind] = [x, y]
         self.pos[old_id] = [new_x, new_y]
         self.update_padding()
                             
